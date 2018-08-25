@@ -1,3 +1,8 @@
+### Purpose
+因個人需求增加date & 推文數篩選功能。
+
+### ORIGINAL README MESSAGE.
+
 # ptt-web-crawler (PTT 網路版爬蟲) [![Build Status](https://travis-ci.org/jwlin/ptt-web-crawler.svg?branch=master)](https://travis-ci.org/jwlin/ptt-web-crawler)
 
 ### [English Readme](#english_desc)
