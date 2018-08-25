@@ -34,9 +34,9 @@ class PttWebCrawler(object):
             Output: BOARD_NAME-START_INDEX-END_INDEX.json (or BOARD_NAME-ID.json)
         ''')
         parser.add_argument('-b', metavar='BOARD_NAME', help='Board name', required=True)
-        group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
-        group.add_argument('-a', metavar='ARTICLE_ID', help="Article ID")
+        parser.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
+        parser.add_argument('-z', metavar='PUSH_THREHOLD', help="Push count threhold. (<0 for boo-ed article)")
+        parser.add_argument('-d', metavar='DATE', help="Date")
         parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
         if not as_lib:
@@ -45,19 +45,25 @@ class PttWebCrawler(object):
             else:
                 args = parser.parse_args()
             board = args.b
+            push_count = 0
+            date = '/'
+            if args.z:
+                push_count = args.z
+            if args.d:
+                date = args.d
             if args.i:
                 start = args.i[0]
                 if args.i[1] == -1:
                     end = self.getLastPage(board)
                 else:
                     end = args.i[1]
-                self.parse_articles(start, end, board)
+                self.parse_articles(start, end, board, push_count, date)
             else:  # args.a
                 article_id = args.a
                 self.parse_article(article_id, board)
 
-    def parse_articles(self, start, end, board, path='.', timeout=3):
-            filename = board + '-' + str(start) + '-' + str(end) + '.json'
+    def parse_articles(self, start, end, board, count=0, date='/', path='.', timeout=3):
+            filename = board + '-' + str(start) + '-' + str(end) + '-' + str(count) +'.json'
             filename = os.path.join(path, filename)
             self.store(filename, u'{"articles": [', 'w')
             for i in range(end-start+1):
@@ -73,6 +79,12 @@ class PttWebCrawler(object):
                 soup = BeautifulSoup(resp.text, 'html.parser')
                 divs = soup.find_all("div", "r-ent")
                 for div in divs:
+                    c = div.find('div', class_='nrec')
+                    if not self.filter_by_count(count, c.get_text()):
+                        continue
+                    c = div.find('div', class_='meta').find('div', class_='date')
+                    if date not in c.get_text():
+                        continue
                     try:
                         # ex. link would be <a href="/bbs/PublicServan/M.1127742013.A.240.html">Re: [問題] 職等</a>
                         href = div.find('a')['href']
@@ -205,6 +217,18 @@ class PttWebCrawler(object):
     def get(filename, mode='r'):
         with codecs.open(filename, mode, encoding='utf-8') as f:
             return json.load(f)
+
+    @staticmethod
+    def filter_by_count(threhold, count):
+        if count == '':
+            count = '0'
+        if int(threhold) < 0:
+            return "X" in count or '0' == count
+        elif int(threhold) > 0:
+            return "爆" in count or int(count) > int(threhold)
+        else:
+            return True
+        return False
 
 if __name__ == '__main__':
     c = PttWebCrawler()
