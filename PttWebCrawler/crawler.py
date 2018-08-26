@@ -232,7 +232,7 @@ class PttWebCrawler(object):
         if int(threhold) < 0:
             return "X" in count or '0' == count
         elif int(threhold) > 0:
-            return "爆" in count or int(count) > int(threhold)
+            return ("X" not in count) and ("爆" in count or int(count) > int(threhold))
         else:
             return True
         return False
