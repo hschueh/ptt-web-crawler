@@ -52,20 +52,23 @@ class PttWebCrawler(object):
             if args.d:
                 date = args.d
             if args.i:
-                start = args.i[0]
+                if args.i[0] < 0:
+                    start = self.getLastPage(board) + 1 + args.i[0]
+                else:
+                    start = args.i[0]
                 if args.i[1] == -1:
                     end = self.getLastPage(board)
                 else:
                     end = args.i[1]
                 self.parse_articles(start, end, board, push_count, date)
-            else:  # args.a
-                article_id = args.a
-                self.parse_article(article_id, board)
+            else:  # args.a Not supported anymore
+                print('-a is deprecated.')
 
     def parse_articles(self, start, end, board, count=0, date='/', path='.', timeout=3):
             filename = board + '-' + str(start) + '-' + str(end) + '-' + str(count) +'.json'
             filename = os.path.join(path, filename)
             self.store(filename, u'{"articles": [', 'w')
+            first = True
             for i in range(end-start+1):
                 index = start + i
                 print('Processing index:', str(index))
@@ -86,6 +89,10 @@ class PttWebCrawler(object):
                     if date not in c.get_text():
                         continue
                     try:
+                        if not first:
+                            self.store(filename, ',\n', 'a')
+                        else:
+                            first = False
                         # ex. link would be <a href="/bbs/PublicServan/M.1127742013.A.240.html">Re: [問題] 職等</a>
                         href = div.find('a')['href']
                         link = self.PTT_URL + href
@@ -93,7 +100,7 @@ class PttWebCrawler(object):
                         if div == divs[-1] and i == end-start:  # last div of last page
                             self.store(filename, self.parse(link, article_id, board), 'a')
                         else:
-                            self.store(filename, self.parse(link, article_id, board) + ',\n', 'a')
+                            self.store(filename, self.parse(link, article_id, board), 'a')
                     except:
                         pass
                 time.sleep(0.1)
