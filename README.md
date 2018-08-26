@@ -1,5 +1,16 @@
 ### Purpose
-因個人需求增加date & 推文數篩選功能。
+因個人需求增加一些功能
+  - 指定date. (Usage: -d 10/24)
+  - 推文數功能(正數的話跟PTT大Z一樣，<0就是所有X1以上的文)
+  - start頁數也可以是負數，比如說倒數十頁 (-i -10 -1)
+  - 以上功能可以同時有，不是'-a' or '-i'了
+  - requests_retry_session
+
+### Note
+因加入retry功能(ref: https://www.peterbe.com/plog/best-practice-with-retries-with-requests)，"呼叫 package "失效啦
+
+### TODO
+待補
 
 === ORIGINAL README BELOW ===
 

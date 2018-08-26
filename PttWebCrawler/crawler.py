@@ -10,6 +10,7 @@ import requests
 import argparse
 import time
 import codecs
+from requests_retry_session import requests_retry_session
 from bs4 import BeautifulSoup
 from six import u
 
@@ -72,7 +73,7 @@ class PttWebCrawler(object):
             for i in range(end-start+1):
                 index = start + i
                 print('Processing index:', str(index))
-                resp = requests.get(
+                resp = requests_retry_session().get(
                     url = self.PTT_URL + '/bbs/' + board + '/index' + str(index) + '.html',
                     cookies={'over18': '1'}, verify=VERIFY, timeout=timeout
                 )
@@ -117,7 +118,7 @@ class PttWebCrawler(object):
     @staticmethod
     def parse(link, article_id, board, timeout=3):
         print('Processing article:', article_id)
-        resp = requests.get(url=link, cookies={'over18': '1'}, verify=VERIFY, timeout=timeout)
+        resp = requests_retry_session().get(url=link, cookies={'over18': '1'}, verify=VERIFY, timeout=timeout)
         if resp.status_code != 200:
             print('invalid url:', resp.url)
             return json.dumps({"error": "invalid url"}, sort_keys=True, ensure_ascii=False)
@@ -206,7 +207,7 @@ class PttWebCrawler(object):
 
     @staticmethod
     def getLastPage(board, timeout=3):
-        content = requests.get(
+        content = requests_retry_session().get(
             url= 'https://www.ptt.cc/bbs/' + board + '/index.html',
             cookies={'over18': '1'}, timeout=timeout
         ).content.decode('utf-8')
