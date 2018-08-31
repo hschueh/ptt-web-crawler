@@ -233,10 +233,15 @@ class PttWebCrawler(object):
         if int(threhold) < 0:
             return "X" in count or '0' == count
         elif int(threhold) > 0:
-            return ("X" not in count) and ("爆" in count or int(count) > int(threhold))
+            return ("X" not in count) and (not isInt_try(count) or int(count) > int(threhold))
         else:
             return True
         return False
+
+def isInt_try(v):
+    try: i = int(v)
+    except: return False
+    return True
 
 if __name__ == '__main__':
     c = PttWebCrawler()
