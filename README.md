@@ -7,7 +7,7 @@
   - requests_retry_session
 
 ### Note
-因加入retry功能(ref: https://www.peterbe.com/plog/best-practice-with-retries-with-requests)，"呼叫 package "失效啦
+因加入retry功能(ref: https://www.peterbe.com/plog/best-practice-with-retries-with-requests )，"呼叫 package"失效啦，有空再來研究怎麼讓他復活
 
 ### TODO
 待補
