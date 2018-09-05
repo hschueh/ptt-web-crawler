@@ -90,18 +90,16 @@ class PttWebCrawler(object):
                     if date not in c.get_text():
                         continue
                     try:
-                        if not first:
-                            self.store(filename, ',\n', 'a')
-                        else:
-                            first = False
                         # ex. link would be <a href="/bbs/PublicServan/M.1127742013.A.240.html">Re: [問題] 職等</a>
                         href = div.find('a')['href']
                         link = self.PTT_URL + href
                         article_id = re.sub('\.html', '', href.split('/')[-1])
-                        if div == divs[-1] and i == end-start:  # last div of last page
-                            self.store(filename, self.parse(link, article_id, board), 'a')
+                        parsed = self.parse(link, article_id, board)
+                        if not first:
+                            self.store(filename, ',\n', 'a')
                         else:
-                            self.store(filename, self.parse(link, article_id, board), 'a')
+                            first = False
+                        self.store(filename, parsed, 'a')
                     except:
                         pass
                 time.sleep(0.1)
