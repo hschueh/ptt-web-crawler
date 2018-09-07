@@ -38,6 +38,7 @@ class PttWebCrawler(object):
         parser.add_argument('-i', metavar=('START_INDEX', 'END_INDEX'), type=int, nargs=2, help="Start and end index")
         parser.add_argument('-z', metavar='PUSH_THREHOLD', help="Push count threhold. (<0 for boo-ed article)")
         parser.add_argument('-d', metavar='DATE', help="Date")
+        parser.add_argument('-o', metavar='PATH', help="Output path")
         parser.add_argument('-v', '--version', action='version', version='%(prog)s ' + __version__)
 
         if not as_lib:
@@ -48,10 +49,13 @@ class PttWebCrawler(object):
             board = args.b
             push_count = 0
             date = '/'
+            outname = '.'
             if args.z:
                 push_count = args.z
             if args.d:
                 date = args.d
+            if args.o:
+                outname = args.o
             if args.i:
                 if args.i[0] < 0:
                     start = self.getLastPage(board) + 1 + args.i[0]
@@ -61,12 +65,14 @@ class PttWebCrawler(object):
                     end = self.getLastPage(board)
                 else:
                     end = args.i[1]
-                self.parse_articles(start, end, board, push_count, date)
+                self.parse_articles(start, end, board, outname, push_count, date)
             else:  # args.a Not supported anymore
                 print('-a is deprecated.')
 
-    def parse_articles(self, start, end, board, count=0, date='/', path='.', timeout=3):
-            filename = board + '-' + str(start) + '-' + str(end) + '-' + str(count) +'.json'
+    def parse_articles(self, start, end, board, outname='.', count=0, date='/', path='.', timeout=3):
+            filename = outname
+            if(filename == '.'):
+                filename = board + '-' + str(start) + '-' + str(end) + '-' + str(count) +'.json'
             filename = os.path.join(path, filename)
             self.store(filename, u'{"articles": [', 'w')
             first = True
